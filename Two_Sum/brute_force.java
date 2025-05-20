@@ -1,3 +1,4 @@
+//TC: O(N^2) SC:O(1)
 public class brute_force{
     public static int[] twoSum(int[] nums, int target){
         for(int i=0; i<nums.length; i++){
@@ -20,3 +21,4 @@ public class brute_force{
         }
     }
 }
+

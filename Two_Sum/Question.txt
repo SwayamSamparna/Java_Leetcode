@@ -1,0 +1,200 @@
+🔹 1. Basic Understanding
+❓ Can you explain how your solution works?
+Yes. I iterate through the array once while using a HashMap to store numbers I’ve seen and their indices. For each number nums[i], I compute its complement as target - nums[i]. If that complement exists in the map, it means I’ve already seen a number that can be added to nums[i] to reach the target, so I return both indices. If not, I add the current number to the map for future reference.
+
+❓ Why did you choose a HashMap?
+A HashMap offers average O(1) time complexity for insertions and lookups. This allows me to check for the required complement in constant time during each iteration, achieving an overall linear time solution.
+
+❓ What does complement = target - nums[i] mean?
+It means I’m looking for the value that would add to the current number to reach the target. For example, if the target is 10 and the current number is 3, I need to find 7 in the previously seen elements.
+
+❓ What happens if there are duplicate numbers?
+The solution still works correctly, because I check if the complement has already been seen. If two duplicates make up the target, the one seen earlier is already stored in the map, so it gets picked up.
+
+❓ Will this solution work if no such pair exists?
+Yes. If no two elements sum to the target, the loop finishes, and I return an empty array to indicate no result.
+
+❓ Can the same element be used twice?
+No. In the current implementation, we only consider previously seen elements as complements, so the same index cannot be reused. This ensures no element is used twice.
+
+🔹 2. Time and Space Complexity
+❓ What’s the time complexity of your approach?
+O(n), where n is the number of elements in the array. Each element is visited once, and map operations are constant time on average.
+
+❓ What’s the space complexity?
+O(n) in the worst case, when no pair is found and all elements are stored in the map.
+
+❓ Why is the space complexity O(n)?
+Because we may need to store all n elements in the HashMap if the required pair is found only at the end or doesn't exist at all.
+
+❓ Can this problem be solved in O(1) space?
+Not in the general case where the array is unsorted and we need to return original indices. If space is limited, we could sort and use a two-pointer technique, but that would increase time to O(n log n) and lose original index positions.
+
+🔹 3. Edge Cases & Robustness
+❓ What if the array is empty or has one element?
+The loop won't find any pairs and returns an empty array — the behavior is correct and safe.
+
+❓ What if all elements are the same?
+It still works. For example, if the target is 10 and the array is [5, 5], the map will find the first 5, and when the second 5 is encountered, the pair will be returned.
+
+❓ What if no valid pair exists?
+The loop will complete without returning, and the function will return an empty array — indicating no match.
+
+❓ How would you modify your solution to return all such pairs instead of just one?
+I’d change the return type to List<int[]> and store all matching pairs instead of returning early. I'd also use a Set to avoid duplicates.
+
+🔹 4. Follow-up Variants
+❓ How would you find all unique pairs that sum to the target?
+First, use a Set to avoid counting duplicates. Then iterate through the array and for each element, check if its complement exists in the map and has not already been used in another pair.
+
+public List<int[]> allTwoSumPairs(int[] nums, int target) {
+    Set<Integer> seen = new HashSet<>();
+    Set<String> addedPairs = new HashSet<>();
+    List<int[]> result = new ArrayList<>();
+
+    for (int num : nums) {
+        int complement = target - num;
+        if (seen.contains(complement)) {
+            // To avoid duplicates like [2,4] and [4,2]
+            String pair = Math.min(num, complement) + ":" + Math.max(num, complement);
+            if (!addedPairs.contains(pair)) {
+                result.add(new int[]{complement, num});
+                addedPairs.add(pair);
+            }
+        }
+        seen.add(num);
+    }
+    return result;
+}
+
+
+❓ If the array was sorted, how would you solve it using two pointers?
+I’d initialize two pointers: one at the start, one at the end. If their sum is less than the target, move the left pointer; if more, move the right pointer. Stop when a matching pair is found or when pointers meet. Time complexity is O(n), but this only works if we don’t need original indices.
+
+❓ How would you change your code if you just had to return true/false?
+Instead of returning indices, I would return true inside the loop when a valid pair is found, and false at the end. This slightly reduces memory usage and improves readability.
+
+public boolean hasTwoSum(int[] nums, int target) {
+    Set<Integer> seen = new HashSet<>();
+    for (int num : nums) {
+        int complement = target - num;
+        if (seen.contains(complement)) {
+            return true;
+        }
+        seen.add(num);
+    }
+    return false;
+}
+
+
+❓ Can you solve this using O(1) extra space?
+Only by sorting the array and using the two-pointer technique, which takes O(n log n) time. But again, this won’t give correct indices without storing them in an auxiliary array, which takes O(n) space again.
+
+🔹 5. Code Optimization / Quality
+❓ What are the advantages and disadvantages of your current approach?
+Advantages:
+
+Fast: O(n) time
+
+Simple to implement
+
+Works on unsorted arrays
+
+Disadvantages:
+
+Requires O(n) space
+
+Doesn’t work if only values (not indices) are returned and space is constrained
+
+❓ Is your code readable and maintainable?
+Yes, variable names are descriptive (complement, numMap), and logic is clear. For production code, I’d add null/edge case checks and possibly comments for clarity.
+
+❓ What would you do differently in a production-level system?
+I’d validate inputs (e.g., check for null or too short arrays), write unit tests, handle overflow or large numbers, and include logging or custom exceptions if necessary.
+
+🔹 6. Advanced/Curveball Questions
+❓ Can you implement this without using any built-in HashMap library?
+Yes, I could implement a custom hash table using arrays or linked lists for buckets and handle collisions via chaining or open addressing. It’s more complex but feasible.
+
+class Pair {
+    int key;
+    int value;
+    Pair(int key, int value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+class MyMap {
+    List<Pair> list = new ArrayList<>();
+
+    void put(int key, int value) {
+        for (Pair p : list) {
+            if (p.key == key) {
+                p.value = value;
+                return;
+            }
+        }
+        list.add(new Pair(key, value));
+    }
+
+    Integer get(int key) {
+        for (Pair p : list) {
+            if (p.key == key) return p.value;
+        }
+        return null;
+    }
+
+    boolean containsKey(int key) {
+        for (Pair p : list) {
+            if (p.key == key) return true;
+        }
+        return false;
+    }
+}
+
+public int[] twoSumCustomMap(int[] nums, int target) {
+    MyMap map = new MyMap();
+    for (int i = 0; i < nums.length; i++) {
+        int complement = target - nums[i];
+        if (map.containsKey(complement)) {
+            return new int[]{map.get(complement), i};
+        }
+        map.put(nums[i], i);
+    }
+    return new int[]{};
+}
+
+
+❓ Can you solve this in a multithreaded environment safely?
+If the array is being accessed in parallel, I’d synchronize access to shared resources like the map. For concurrent environments, I could use ConcurrentHashMap.
+
+❓ What if the array is too large to fit in memory (streaming input)?
+I’d use a streaming algorithm: process elements one by one, and store seen values in a memory-efficient data structure (e.g., Bloom filter, if approximate). May need to trade off exactness or use disk-based storage.
+
+public boolean hasTwoSumStreaming(InputStream stream, int target) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+    Set<Integer> seen = new HashSet<>();
+    String line;
+    while ((line = reader.readLine()) != null) {
+        int num = Integer.parseInt(line.trim());
+        if (seen.contains(target - num)) {
+            return true;
+        }
+        seen.add(num);
+    }
+    return false;
+}
+
+
+❓ Can you do this in a functional programming style (Java 8 streams)?
+Partially. Since the solution depends on state (the map), purely functional implementation is tricky, but Java 8 Streams with side-effects or collectors can simulate it. However, imperative style is more efficient and readable in this case.
+
+public boolean hasTwoSumStream(int[] nums, int target) {
+    Set<Integer> seen = new HashSet<>();
+    return Arrays.stream(nums).anyMatch(num -> {
+        if (seen.contains(target - num)) return true;
+        seen.add(num);
+        return false;
+    });
+}
